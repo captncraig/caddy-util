@@ -18,14 +18,14 @@ type TestStruct struct {
 	E []int             // e 13 (allowed multiple times)
 	G net.IP            // g 1.2.3.4
 	H []net.IP          // h 1.2.3.4 (multiple)
-	I net.Addr          // i 1.2.3.0\16
-	J []net.Addr        // multiple cidrs
+	I *net.IPNet        // i 1.2.3.0\16
+	J []*net.IPNet      // multiple cidrs
 	K map[string]string // k key1 val1 \n k key2 val2
 	L [][]string        // each line is one slice. All args are included
 	Z string            `caddy:"m"`
 }
 
-var c1, c2 net.Addr
+var c1, c2 *net.IPNet
 
 func init() {
 	_, c1, _ = net.ParseCIDR("1.2.3.0/0")
@@ -47,7 +47,7 @@ func TestUnmarshal(t *testing.T) {
 		{[]string{"g 1.2.3.4"}, &TestStruct{G: net.ParseIP("1.2.3.4")}},
 		{[]string{"h 1.2.3.4", "h 2.3.4.5"}, &TestStruct{H: []net.IP{net.ParseIP("1.2.3.4"), net.ParseIP("2.3.4.5")}}},
 		{[]string{"i 1.2.3.0/0"}, &TestStruct{I: c1}},
-		{[]string{"j 1.2.3.0/0", "j 1.2.3.0/0"}, &TestStruct{J: []net.Addr{c1, c2}}},
+		{[]string{"j 1.2.3.0/0", "j 1.2.3.0/0"}, &TestStruct{J: []*net.IPNet{c1, c2}}},
 		{[]string{"k a boo", `k foo "a b c d e"`}, &TestStruct{K: map[string]string{"a": "boo", "foo": "a b c d e"}}},
 		{[]string{"l a b c", "l d e f g h"}, &TestStruct{L: [][]string{[]string{"a", "b", "c"}, []string{"d", "e", "f", "g", "h"}}}},
 		{[]string{"m foo"}, &TestStruct{Z: "foo"}},
@@ -72,10 +72,10 @@ type ArgTest0 struct {
 }
 
 type ArgComplicated struct {
-	Addr net.Addr `caddy:",arg0"`
-	IP   net.IP   `caddy:",arg1"`
-	Num  int      `caddy:",arg2"`
-	B    bool     `caddy:",arg3"`
+	Addr *net.IPNet `caddy:",arg0"`
+	IP   net.IP     `caddy:",arg1"`
+	Num  int        `caddy:",arg2"`
+	B    bool       `caddy:",arg3"`
 }
 
 type ArrayArgs struct {

@@ -68,7 +68,7 @@ func packField(field *reflect.Value, args []string, c *setup.Controller) error {
 		}
 		return nil
 	}
-	if typStr == "net.Addr" || typStr == "[]net.Addr" {
+	if typStr == "*net.IPNet" || typStr == "[]*net.IPNet" {
 		if len(args) != 1 {
 			return c.ArgErr()
 		}
@@ -77,7 +77,7 @@ func packField(field *reflect.Value, args []string, c *setup.Controller) error {
 			return c.Errf("Invalid CIDR: %s (%s)", args[0], err)
 		}
 		val := reflect.ValueOf(ad)
-		if typStr == "net.Addr" {
+		if typStr == "*net.IPNet" {
 			field.Set(val)
 		} else {
 			field.Set(reflect.Append(*field, val))
